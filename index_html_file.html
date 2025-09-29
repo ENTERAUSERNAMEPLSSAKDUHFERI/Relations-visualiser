@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relations Visualizer - Learn Math Interactively</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .5; }
+    }
+    
+    .animate-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    function RelationsVisualizer() {
+      const [selectedExample, setSelectedExample] = useState('students');
+      const [showConnections, setShowConnections] = useState(true);
+
+      const examples = {
+        students: {
+          name: 'Students & Grades',
+          icon: '👨‍🎓',
+          setA: ['Alice', 'Bob', 'Carol', 'David'],
+          setB: ['A', 'B', 'C', 'D', 'F'],
+          relations: [
+            { from: 'Alice', to: 'A', color: 'green' },
+            { from: 'Bob', to: 'B', color: 'blue' },
+            { from: 'Bob', to: 'C', color: 'blue' },
+            { from: 'Carol', to: 'A', color: 'purple' },
+            { from: 'David', to: 'C', color: 'orange' }
+          ],
+          note: 'Bob connects to TWO grades! Is this okay? YES! Relations allow this.',
+          type: 'Not a Function (Bob has 2 outputs)'
+        },
+        birthday: {
+          name: 'People & Birth Months',
+          icon: '🎂',
+          setA: ['Emma', 'Liam', 'Olivia', 'Noah'],
+          setB: ['Jan', 'Mar', 'Jun', 'Sep', 'Dec'],
+          relations: [
+            { from: 'Emma', to: 'Mar', color: 'pink' },
+            { from: 'Liam', to: 'Jun', color: 'blue' },
+            { from: 'Olivia', to: 'Mar', color: 'purple' },
+            { from: 'Noah', to: 'Sep', color: 'green' }
+          ],
+          note: 'Each person has ONE birth month. Multiple people can share a month!',
+          type: 'This IS a Function!'
+        },
+        cities: {
+          name: 'Cities & Countries',
+          icon: '🌍',
+          setA: ['Paris', 'London', 'Tokyo', 'Rome'],
+          setB: ['France', 'UK', 'Japan', 'Italy', 'USA'],
+          relations: [
+            { from: 'Paris', to: 'France', color: 'blue' },
+            { from: 'London', to: 'UK', color: 'red' },
+            { from: 'Tokyo', to: 'Japan', color: 'pink' },
+            { from: 'Rome', to: 'Italy', color: 'green' }
+          ],
+          note: 'Each city belongs to ONE country. Notice USA has no connections - that\'s okay!',
+          type: 'This IS a Function!'
+        },
+        favorites: {
+          name: 'People & Favorite Foods',
+          icon: '🍕',
+          setA: ['Sarah', 'Mike', 'Lisa'],
+          setB: ['Pizza', 'Tacos', 'Sushi', 'Pasta'],
+          relations: [
+            { from: 'Sarah', to: 'Pizza', color: 'red' },
+            { from: 'Sarah', to: 'Sushi', color: 'red' },
+            { from: 'Mike', to: 'Tacos', color: 'orange' },
+            { from: 'Lisa', to: 'Pizza', color: 'purple' },
+            { from: 'Lisa', to: 'Pasta', color: 'purple' }
+          ],
+          note: 'Sarah and Lisa each have TWO favorites! This is a valid relation but NOT a function.',
+          type: 'Not a Function (multiple outputs)'
+        }
+      };
+
+      const current = examples[selectedExample];
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 p-8">
+          <div className="max-w-6xl mx-auto">
+            <h1 className="text-4xl font-bold text-white text-center mb-2">
+              🔗 Relations: Connecting Things Together
+            </h1>
+            <p className="text-white text-center mb-8 text-lg">
+              A relation is just about showing connections between two groups!
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {Object.entries(examples).map(([key, ex]) => (
+                <button
+                  key={key}
+                  onClick={() => setSelectedExample(key)}
+                  className={`p-4 rounded-xl font-bold transition-all transform hover:scale-105 ${
+                    selectedExample === key
+                      ? 'bg-yellow-300 text-purple-900 shadow-xl scale-105'
+                      : 'bg-white text-gray-700 hover:bg-yellow-100'
+                  }`}
+                >
+                  <div className="text-4xl mb-2">{ex.icon}</div>
+                  <div className="text-sm">{ex.name}</div>
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-white rounded-3xl p-8 shadow-2xl mb-6">
+              <div className="text-center mb-6">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  {current.icon} {current.name}
+                </h2>
+                <button
+                  onClick={() => setShowConnections(!showConnections)}
+                  className="bg-purple-500 text-white px-6 py-2 rounded-full hover:bg-purple-600 transition-all"
+                >
+                  {showConnections ? '👁️ Hide' : '👁️ Show'} Connections
+                </button>
+              </div>
+
+              <div className="relative flex justify-between items-start gap-8">
+                <div className="flex-1">
+                  <div className="bg-blue-100 rounded-xl p-4 mb-4">
+                    <h3 className="text-xl font-bold text-blue-900 text-center mb-3">
+                      SET A (Input)
+                    </h3>
+                    <div className="space-y-3">
+                      {current.setA.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-white rounded-lg p-4 shadow-md text-center font-bold text-gray-800 text-lg border-4 border-blue-300"
+                          style={{ position: 'relative', zIndex: 10 }}
+                        >
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {showConnections && (
+                  <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+                    <svg className="w-full h-full">
+                      {current.relations.map((rel, idx) => {
+                        const fromIdx = current.setA.indexOf(rel.from);
+                        const toIdx = current.setB.indexOf(rel.to);
+                        const x1 = '35%';
+                        const y1 = `${20 + fromIdx * 80}px`;
+                        const x2 = '65%';
+                        const y2 = `${20 + toIdx * 80}px`;
+                        
+                        return (
+                          <line
+                            key={idx}
+                            x1={x1}
+                            y1={y1}
+                            x2={x2}
+                            y2={y2}
+                            stroke={rel.color}
+                            strokeWidth="4"
+                            className="animate-pulse"
+                          />
+                        );
+                      })}
+                    </svg>
+                  </div>
+                )}
+
+                <div className="flex flex-col items-center justify-center" style={{ zIndex: 5 }}>
+                  <div className="text-6xl text-purple-600 animate-pulse">
+                    →
+                  </div>
+                  <div className="text-sm font-bold text-purple-600 mt-2">
+                    RELATION
+                  </div>
+                </div>
+
+                <div className="flex-1">
+                  <div className="bg-green-100 rounded-xl p-4 mb-4">
+                    <h3 className="text-xl font-bold text-green-900 text-center mb-3">
+                      SET B (Output)
+                    </h3>
+                    <div className="space-y-3">
+                      {current.setB.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-white rounded-lg p-4 shadow-md text-center font-bold text-gray-800 text-lg border-4 border-green-300"
+                          style={{ position: 'relative', zIndex: 10 }}
+                        >
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 bg-yellow-100 rounded-xl p-6 border-4 border-yellow-400">
+                <p className="text-yellow-900 text-lg mb-3">
+                  <strong>👀 What do you notice?</strong> {current.note}
+                </p>
+                <p className="text-2xl font-bold text-center text-purple-800">
+                  {current.type}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-white rounded-2xl p-6 shadow-xl">
+                <h3 className="text-2xl font-bold text-blue-600 mb-4">✅ Relations CAN:</h3>
+                <ul className="space-y-3 text-gray-800">
+                  <li className="flex items-start gap-3">
+                    <span className="text-2xl">1️⃣</span>
+                    <span>Have one item connect to <strong>multiple</strong> things (Bob → B and C)</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-2xl">2️⃣</span>
+                    <span>Have items with <strong>no connections</strong> at all (USA has none)</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-2xl">3️⃣</span>
+                    <span>Have <strong>multiple items</strong> connecting to the same thing (Emma and Olivia → Mar)</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-xl">
+                <h3 className="text-2xl font-bold text-purple-600 mb-4">🎯 Main Point:</h3>
+                <div className="bg-purple-50 rounded-xl p-4 border-2 border-purple-300">
+                  <p className="text-gray-800 text-lg mb-3">
+                    A <strong>relation</strong> is just ANY way of pairing things from Set A with things from Set B.
+                  </p>
+                  <p className="text-gray-800 text-lg">
+                    There are NO strict rules! Anything goes! 🎉
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-orange-400 to-red-400 rounded-2xl p-8 shadow-2xl text-white">
+              <h3 className="text-3xl font-bold text-center mb-4">
+                🎪 The Big Secret About Functions:
+              </h3>
+              <p className="text-xl text-center mb-4">
+                A <strong>FUNCTION</strong> is just a <strong>SPECIAL TYPE</strong> of relation!
+              </p>
+              <p className="text-lg text-center">
+                The only rule? Each item in Set A can connect to <strong>ONLY ONE</strong> item in Set B.
+              </p>
+              <p className="text-center mt-4 text-2xl">
+                Relations = Anything goes! 🎉<br/>
+                Functions = One input → One output only! 🎯
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<RelationsVisualizer />, document.getElementById('root'));
+  </script>
+</body>
+</html>
