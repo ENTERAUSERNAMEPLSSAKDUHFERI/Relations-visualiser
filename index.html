@@ -599,13 +599,22 @@ IMPORTANT RULES:
                         const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
                         const color = colors[idx % colors.length];
                         
+                        // Calculate exact positions - center of each box
+                        // Box height is roughly 40px (p-2 + text), starting at ~90px from top
+                        const boxHeight = 42;
+                        const startY = 112; // Adjusted to align with center of first box
+                        const spacing = boxHeight + 8; // 8px gap between boxes
+                        
+                        const y1 = startY + (fromIdx * spacing);
+                        const y2 = startY + (toIdx * spacing);
+                        
                         return (
                           <g key={idx}>
                             <line
-                              x1="35%"
-                              y1={`${60 + fromIdx * 50}px`}
-                              x2="65%"
-                              y2={`${60 + toIdx * 50}px`}
+                              x1="37%"
+                              y1={y1}
+                              x2="63%"
+                              y2={y2}
                               stroke={color}
                               strokeWidth="3"
                               markerEnd="url(#arrowhead)"
